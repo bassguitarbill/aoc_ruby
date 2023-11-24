@@ -6,7 +6,7 @@ def wrong_time
 end
 
 def problem_name(year, day)
-  Dir.entries(File.join(File.dirname(__FILE__), "../lib/advent_of_code_ruby/year_#{year}/problem_#{day}")).reject{ |entry| entry == "input.txt" }.first
+  Dir.entries(File.join(File.dirname(__FILE__), "../lib/advent_of_code_ruby/year_#{year}/problem_#{day}")).find{ |entry| entry.include? ".rb" }
 end
 
 def solution_class_name(year, day)
