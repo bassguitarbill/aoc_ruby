@@ -1,3 +1,5 @@
+require_relative 'load_input'
+
 module AdventOfCodeRuby
   class Generator
     attr_reader :year, :day, :problem_name
@@ -13,6 +15,7 @@ module AdventOfCodeRuby
       generate_year
       generate_problem
       generate_solution
+      generate_input_text
     end
 
   private
@@ -74,6 +77,10 @@ module AdventOfCodeRuby
       File.join(year_folder, "problem_#{day}.rb")
     end
 
+    def input_file
+      File.join(problem_folder, "input.txt")
+    end
+
     def top_level_file_content
       "require_relative \"advent_of_code_ruby/year_#{year}.rb\"\n"
     end
@@ -112,6 +119,17 @@ SOLUTION
 
     def solution_class_name
       problem_name.split('_').collect(&:capitalize).join
+    end
+
+    def generate_input_text
+      return if problem_folder_contains_input?
+
+      input_text = LoadInput.new(year, day).download_input
+      File.write(input_file, input_text)
+    end
+
+    def problem_folder_contains_input?
+      File.file? input_file
     end
   end
 end
