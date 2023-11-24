@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
-USAGE_MESSAGE = "usage: run <year> <day>"
-def usage
-  puts USAGE_MESSAGE
+WRONG_TIME_MESSAGE = "This script can only be run between December 1 and December 25"
+def wrong_time
+  puts WRONG_TIME_MESSAGE
 end
 
 def problem_name(year, day)
@@ -17,17 +17,19 @@ def problem_not_generated?(year, day)
   !File.directory? File.join(File.dirname(__FILE__), "../lib/advent_of_code_ruby/year_#{year}/problem_#{day}")
 end
 
-if ARGV.length != 2
-  usage
+ENV['TZ'] = "America/New_York"
+time = Time.now
+year = time.year
+month = time.month
+day = time.day
+
+if month != 12 || day > 25
+  wrong_time
   exit 1
 end
 
-year, day, problem_name = ARGV
-year = year.to_i
-day = day.to_i
-
 if problem_not_generated?(year, day)
-  puts "Problem #{day} from year #{year} is not generated. Run `generate #{year} #{day} <problem name>` to generate a stub"
+  puts "Today's problem is not generated. Run `generate_today <problem name>` to generate a stub"
   exit 2
 end
 
