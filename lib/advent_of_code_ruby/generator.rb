@@ -38,7 +38,7 @@ module AdventOfCodeRuby
     def generate_problem
       Dir.mkdir problem_folder unless File.directory? problem_folder
       File.write(problem_file, problem_file_content) unless File.exist? problem_file
-      File.write(year_file, year_file_content) unless year_file_contains_problem?
+      File.write(year_file, year_file_content, mode: "a") unless year_file_contains_problem?
     end
 
     def generate_solution
