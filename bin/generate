@@ -1,0 +1,28 @@
+#!/usr/bin/env ruby
+
+USAGE_MESSAGE = "usage: generate <year> <day> <problem_name>"
+def usage
+  puts USAGE_MESSAGE
+end
+
+WRONG_TIME_MESSAGE = "This script can only be run for years >= 2015, and for days between December 1 and December 25"
+def wrong_time
+  puts WRONG_TIME_MESSAGE
+end
+
+if ARGV.length != 3
+  usage
+  exit 1
+end
+
+year, day, problem_name = ARGV
+year = year.to_i
+day = day.to_i
+
+if year < 2015 || day > 25
+  wrong_time
+  exit 2
+end
+
+require_relative "../lib/advent_of_code_ruby/generator"
+AdventOfCodeRuby::Generator.new(year, day, problem_name).generate
