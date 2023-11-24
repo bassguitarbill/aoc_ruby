@@ -1,0 +1,36 @@
+#!/usr/bin/env ruby
+
+USAGE_MESSAGE = "usage: run <year> <day>"
+def usage
+  puts USAGE_MESSAGE
+end
+
+def problem_name(year, day)
+  Dir.entries(File.join(File.dirname(__FILE__), "../lib/advent_of_code_ruby/year_#{year}/problem_#{day}")).first
+end
+
+def solution_class_name(year, day)
+  problem_name(year, day).split('_').collect(&:capitalize).join.split(".").first
+end
+
+def problem_not_generated?(year, day)
+  !File.directory? File.join(File.dirname(__FILE__), "../lib/advent_of_code_ruby/year_#{year}/problem_#{day}")
+end
+
+if ARGV.length != 2
+  usage
+  exit 1
+end
+
+year, day, problem_name = ARGV
+year = year.to_i
+day = day.to_i
+
+if problem_not_generated?(year, day)
+  puts "Problem #{day} from year #{year} is not generated. Run `generate #{year} #{day} <problem name>` to generate a stub"
+  exit 2
+end
+
+require_relative "../lib/advent_of_code_ruby"
+class_name = "AdventOfCodeRuby::Year#{year}::Problem#{day}::#{solution_class_name(year, day)}"
+puts Kernel.const_get(class_name).new.run_problem
