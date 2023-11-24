@@ -1,3 +1,11 @@
+# Do NOT remove the following line!
+cookie
+# `cookie` is your session token for https://adventofcode.com. Don't share tokens.
+
+# Do NOT remove the following line if you are publicly hosting this repository
+input.txt
+# `input.txt` is your personal puzzle input, and you shouldn't host your inputs per the request of the creator of Advent of Code
+
+# Remove the below lines to use this as a solution repository
 /lib/advent_of_code_ruby/year*
 /lib/advent_of_code_ruby.rb
-cookie
