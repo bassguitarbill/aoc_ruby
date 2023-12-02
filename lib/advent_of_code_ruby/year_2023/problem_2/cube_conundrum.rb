@@ -24,32 +24,22 @@ module AdventOfCodeRuby
           rounds.all?(&:possible?)
         end
 
-        def blues
-          rounds.map &:blue
+        def self.attr_color(*colors)
+          colors.each do |color|
+            plural = "#{color.to_s}s".to_sym
+            define_method(plural) { rounds.map &color }
+
+            fewest = "fewest_#{color.to_s}".to_sym
+            define_method(fewest) { send(plural).max }
+          end
+
+          define_method(:colors) { colors }
         end
 
-        def fewest_blue
-          blues.max
-        end
-
-        def reds
-          rounds.map &:red
-        end
-
-        def fewest_red
-          reds.max
-        end
-
-        def greens
-          rounds.map &:green
-        end
-
-        def fewest_green
-          greens.max
-        end
+        attr_color :blue, :red, :green
 
         def power
-          fewest_blue * fewest_red * fewest_green
+          colors.reduce(1){ |product, color| product * send("fewest_#{color.to_s}".to_sym) }
         end
 
         def self.for(string)
