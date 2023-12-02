@@ -27,37 +27,25 @@ module AdventOfCodeRuby
           end
 
           def first_digit
-            digits.first
+            starts_with_digit? || self.class.new(text[1..]).first_digit
           end
 
           def last_digit
-            digits.last
-          end
-
-          def value
-            (first_digit + last_digit).to_i
-          end
-        end
-
-        class AlphaCalibrationLine < CalibrationLine
-          def first_digit(str = text)
-            starts_with_digit? || self.class.new(str[1..]).first_digit
-          end
-
-          def last_digit(str = text)
-            ends_with_digit? || self.class.new(str[0..-2]).last_digit
+            ends_with_digit? || self.class.new(text[0..-2]).last_digit
           end
 
           def starts_with_digit?
             return text[0] if is_digit?(text[0])
-            digits.keys.each { |key| return digits[key] if text.start_with?(key) }
             false
           end
 
           def ends_with_digit?
             return text[-1] if is_digit?(text[-1])
-            digits.keys.each { |key| return digits[key] if text.end_with?(key) }
             false
+          end
+
+          def value
+            (first_digit + last_digit).to_i
           end
 
           def digits
@@ -76,6 +64,20 @@ module AdventOfCodeRuby
 
           def is_digit?(c)
             digits.values.include? c
+          end
+        end
+
+        class AlphaCalibrationLine < CalibrationLine
+          def starts_with_digit?
+            return super if super
+            digits.keys.each { |key| return digits[key] if text.start_with?(key) }
+            false
+          end
+
+          def ends_with_digit?
+            return super if super
+            digits.keys.each { |key| return digits[key] if text.end_with?(key) }
+            false
           end
         end
       end
