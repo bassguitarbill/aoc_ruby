@@ -18,53 +18,42 @@ module AdventOfCodeRuby
       end
 
       class Schematic
-        attr_reader :rows
+        attr_reader :rows, :numbers, :symbols
         def initialize(rows)
           @rows = rows
+          @numbers = []
+          rows.each_with_index { |row, row_num| add_numbers_from_row row, row_num }
+          @symbols = []
+          rows.each_with_index { |row, row_num| add_symbols_from_row row, row_num }
         end
 
         def self.from(string)
           new string.chomp.split("\n")
         end
 
-        def symbols
-          return @symbols if @symbols
-          @symbols = []
-          rows.each_with_index do |row, row_num|
-            row.split("").each_with_index do |char, col_num|
-              next if %w[. 1 2 3 4 5 6 7 8 9 0].include? char
-              @symbols.push Symbol.new(row_num, col_num, char, self)
-            end
+        def add_symbols_from_row(row, row_num)
+          row.split("").each_with_index do |char, col_num|
+            next if %w[. 1 2 3 4 5 6 7 8 9 0].include? char
+            @symbols.push Symbol.new(row_num, col_num, char, self)
           end
-          @symbols
         end
 
         def symbol_coordinates
           @symbol_coordinates ||= symbols.map(&:coords)
         end
 
-        def numbers
-          return @numbers if @numbers
-          @numbers = []
+        def add_numbers_from_row(row, row_num)
           current_number = ""
-          rows.each_with_index do |row, row_num|
-            row.split("").each_with_index do |char, col_num|
-              if %w[1 2 3 4 5 6 7 8 9 0].include? char
-                current_number << char
-              elsif !current_number.empty? 
-                #########################################################
-                # Correction for numbers starting at the end of one row #
-                # being counted as ending at the beginning of the next  #
-                #########################################################
-                rn = col_num == 0 ? row_num - 1 : row_num
-                cn = (col_num == 0 ? row.length : col_num) - current_number.length
-                
-                @numbers.push Number.new(rn, cn, current_number, self)
-                current_number = ""
-              end
+          row.split("").each_with_index do |char, col_num|
+            if %w[1 2 3 4 5 6 7 8 9 0].include? char
+              current_number << char
+            elsif !current_number.empty? 
+              @numbers << Number.new(row_num, col_num - current_number.length, current_number, self)
+              current_number = ""
             end
           end
-          @numbers
+          return if current_number.empty?
+          @numbers << Number.new(row_num, row.length - current_number.length, current_number,self)
         end
 
         ##################################################################
@@ -100,7 +89,7 @@ module AdventOfCodeRuby
         end
       end
 
-      class Number
+      class Element
         attr_reader :row, :col, :value, :schematic
         def initialize(row, col, value, schematic)
           @row = row
@@ -110,7 +99,11 @@ module AdventOfCodeRuby
         end
 
         def width
-          @width ||= value.length
+          1
+        end
+
+        def coords
+          [row, col]
         end
 
         def surrounding_block_coordinates
@@ -124,25 +117,19 @@ module AdventOfCodeRuby
         def neighbor_coordinates
           @neighbor_coordinates ||= surrounding_block_coordinates - self_coordinates
         end
+      end
+
+      class Number < Element
+        def width
+          @width ||= value.length
+        end
 
         def part_number?
           schematic.symbol_coordinates.any? { |sym_coord| neighbor_coordinates.include? sym_coord }
         end
       end
 
-      class Symbol
-        attr_reader :row, :col, :value, :schematic
-        def initialize(row, col, value, schematic)
-          @row = row
-          @col = col
-          @value = value
-          @schematic = schematic
-        end
-
-        def coords
-          [row, col]
-        end
-
+      class Symbol < Element
         def is_gear?
           value == "*"
         end
