@@ -4,12 +4,16 @@ module AdventOfCodeRuby
   module Year2023
     module Problem3
       class GearRatios < Problem
+        def part(input, solution_function)
+          Schematic.from(input).solution(solution_function)
+        end
+
         def part_1(input)
-          Schematic.from(input).part_numbers.sum
+          part(input, :part_numbers)
         end
 
         def part_2(input)
-          Schematic.from(input).gear_ratios.sum
+          part(input, :gear_ratios)
         end
       end
 
@@ -63,14 +67,10 @@ module AdventOfCodeRuby
           @numbers
         end
 
-        def part_numbers
-          numbers.select(&:part_number?).map(&:value).map(&:to_i)
-        end
-
-        def gear_ratios
-          symbols.map(&:gear_ratio)
-        end
-
+        ##################################################################
+        # I had to regenerate the output file from my representation and #
+        # `diff` it with my input to figure out what was wrong with it   #
+        ##################################################################
         def output
           lines = (0..(rows.length - 1)).map{ "." * rows[0].length }
           symbols.each do |s|
@@ -85,6 +85,18 @@ module AdventOfCodeRuby
             end
           end
           lines
+        end
+
+        def gear_ratios
+          symbols.map(&:gear_ratio)
+        end
+
+        def part_numbers
+          numbers.select(&:part_number?).map(&:value)
+        end
+
+        def solution(solution_function)
+          send(solution_function).map(&:to_i).sum
         end
       end
 
