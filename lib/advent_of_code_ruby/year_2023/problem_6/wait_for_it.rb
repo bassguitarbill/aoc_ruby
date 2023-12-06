@@ -5,11 +5,11 @@ module AdventOfCodeRuby
     module Problem6
       class WaitForIt < Problem
         def part_1(input)
-          Races.for(input).margin_of_error
+          Races.for(input, race_class: MathsRace).margin_of_error
         end
 
         def part_2(input)
-          BigRace.for(input).ways_to_win
+          MathsRace.for(input).ways_to_win
         end
       end
 
@@ -19,13 +19,57 @@ module AdventOfCodeRuby
           @races = races
         end
 
-        def self.for(string)
+        def self.for(string, race_class: BigRace)
           times, distances = string.chomp.split("\n").map(&:split)
-          new times[1..].zip(distances[1..]).map{ |time, distance| BigRace.new time.to_i, distance.to_i }
+          new times[1..].zip(distances[1..]).map{ |time, distance| race_class.new time.to_i, distance.to_i }
         end
 
         def margin_of_error
           races.map(&:ways_to_win).reduce(&:*)
+        end
+      end
+
+      module Quadratic
+        def square_root_part
+          @square_root_part ||= Math.sqrt((b * b) - (4 * a * c))
+        end
+
+        def roots
+          %i[+ -].map{ |op| (-b.send(op, square_root_part)) / (2 * a) }.sort
+        end
+      end
+
+      class MathsRace
+        include Quadratic
+        attr_reader :time, :distance
+        def initialize(time, distance)
+          @time = time
+          @distance = distance
+        end
+
+        def self.for(string)
+          time, distance = string.chomp.split("\n").map(&:split)
+          new time[1..].join.to_i, distance[1..].join.to_i
+        end
+
+        def rounded_roots
+          [roots[0].next_float.ceil, roots[1].prev_float.floor + 1]
+        end
+
+        def ways_to_win
+          rounded_roots.sort.reverse.reduce(&:-)
+        end
+
+        def a
+          -1
+        end
+
+        def b
+          time
+        end
+
+        def c
+          -distance
         end
       end
 
@@ -39,6 +83,14 @@ module AdventOfCodeRuby
         def ways_to_win
           (0..time).map{ |time_held| RaceRun.new self, time_held }.filter(&:beats_the_record?).count
         end 
+
+        def first_winning_time
+          (0..time).find{ |time_held| RaceRun.new(self, time_held).beats_the_record? }
+        end
+
+        def rounded_roots
+          [first_winning_time, time - first_winning_time]
+        end
       end
 
       class RaceRun
@@ -99,6 +151,10 @@ module AdventOfCodeRuby
 
         def ways_to_win
           last_winning_time - first_winning_time + 1
+        end
+
+        def rounded_roots
+          [first_winning_time, last_winning_time]
         end
       end
     end
